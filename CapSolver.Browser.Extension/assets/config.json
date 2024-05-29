@@ -1,0 +1,32 @@
+{
+  "apiKey": "CAP-7D0544F78315BEF99FAC5B075ED11A55",
+  "appId":"0763DBE0-862C-4631-B5D7-4CEF70D6F375",
+  "useCapsolver": true,
+  "solvedCallback": "captchaSolvedCallback",
+
+  "useProxy": false,
+  "proxyType": "http",
+  "hostOrIp": "",
+  "port": "",
+  "proxyLogin": "",
+  "proxyPassword": "",
+
+  "enabledForBlacklistControl": false,
+  "blackUrlList": [],
+
+  "enabledForRecaptcha": true,
+  "enabledForRecaptchaV3": true,
+  "enabledForHCaptcha": true,
+  "enabledForFunCaptcha": true,
+
+  "reCaptchaMode": "click",
+  "hCaptchaMode": "click",
+
+  "reCaptchaDelayTime": 0,
+  "hCaptchaDelayTime": 0,
+
+  "reCaptchaRepeatTimes": 10,
+  "reCaptcha3RepeatTimes": 10,
+  "hCaptchaRepeatTimes": 10,
+  "funCaptchaRepeatTimes": 10
+}

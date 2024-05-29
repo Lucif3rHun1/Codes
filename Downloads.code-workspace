@@ -1,0 +1,15 @@
+{
+	"folders": [
+		{
+			"path": ".."
+		},
+		{
+			"path": "../.."
+		}
+	],
+	"settings": {
+		"CodeGPT.apiKey": "Cohere",
+		"CodeGPT.model": "command-xlarge-nightly",
+		"git.ignoreLimitWarning": true
+	}
+}

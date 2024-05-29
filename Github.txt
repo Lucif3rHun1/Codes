@@ -1,0 +1,8 @@
+Initialise Git in a Folder
+~$git init
+
+Add files to be tracked
+~$git add . or filename.ext
+
+Check status which are being tracked
+~$git status

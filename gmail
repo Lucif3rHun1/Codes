@@ -1,0 +1,52 @@
+import re
+import cloudscraper
+import json
+import traceback
+from flask import Flask, request
+
+app = Flask(__name__)
+
+@app.route('/cloudscraper')
+def cloudscraper_request():
+    url = request.args.get('url')
+    proxy = request.args.get('proxy')
+
+    scraper = cloudscraper.create_scraper()
+
+    if proxy and proxy.strip():
+        # Parse proxy details from parameter
+        proxy_regex = r'^(([^:@]+)(:([^:@]+))?@)?([^:@]+)(:([^:@]+))?$'
+        match = re.match(proxy_regex, proxy)
+        if not match:
+            return json.dumps({"error": "Invalid proxy format"}), 400
+        proxy_username = match.group(2)
+        proxy_password = match.group(4)
+        proxy_host = match.group(5)
+        proxy_port = match.group(7)
+
+        # Construct proxy URL
+        if proxy_username and proxy_password:
+            proxy_url = f'http://{proxy_username}:{proxy_password}@{proxy_host}:{proxy_port}'
+        else:
+            proxy_url = f'http://{proxy_host}:{proxy_port}'
+        proxies = {'http': proxy_url}
+    else:
+        proxies = None
+
+    try:
+        response = scraper.get(url, proxies=proxies,allow_redirects=False)
+        cookie_list = [{"name": name, "value": value} for name, value in response.cookies.items()]
+        response_json = {
+            "url": response.url,
+            "cookies": cookie_list,
+            "status_code": response.status_code,
+            "content": response.text
+        }
+        return json.dumps(response_json), response.status_code
+    except Exception as e:
+        traceback_str = traceback.format_exc()
+        error_message = f"Error: {str(e)}\nTraceback: {traceback_str}"
+        return json.dumps({"error": error_message}), 500
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=80)

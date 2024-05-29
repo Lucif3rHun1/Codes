@@ -1,0 +1,76 @@
+import http.server
+import socketserver
+import urllib.request
+import socket
+
+# Get the IP address of your machine
+ip_address = socket.gethostbyname(socket.gethostname())
+
+# Define the proxy server port
+proxy_port = 8889
+
+# Define the additional proxy service address and port
+additional_proxy_host = 'additional-proxy.example.com'
+additional_proxy_port = 8081
+
+# Create a custom handler to handle incoming requests
+class ProxyHandler(http.server.BaseHTTPRequestHandler):
+    def do_GET(self):
+        self.proxy_request()
+
+    def do_POST(self):
+        self.proxy_request()
+
+    def do_PUT(self):
+        self.proxy_request()
+
+    def do_DELETE(self):
+        self.proxy_request()
+
+    def do_HEAD(self):
+        self.proxy_request()
+
+    def proxy_request(self):
+        # Extract the requested URL from the incoming request
+        url = self.path[1:]  # Remove the leading '/'
+
+        try:
+            # Create a proxy handler with an additional proxy if specified
+            proxy_handler = urllib.request.ProxyHandler(
+                {'http': f"{additional_proxy_host}:{additional_proxy_port}"}
+            ) if additional_proxy_host else None
+
+            # Create an opener with the proxy handler
+            opener = urllib.request.build_opener(proxy_handler)
+
+            # Make a request to the requested URL using the opener
+            req = urllib.request.Request(url, method=self.command)
+            with opener.open(req) as response:
+                # Send the response status code to the client
+                self.send_response(response.status)
+
+                # Forward the response headers to the client
+                for header, value in response.headers.items():
+                    self.send_header(header, value)
+                self.end_headers()
+
+                # Forward the response body to the client
+                self.copyfile(response, self.wfile)
+
+        except urllib.error.HTTPError as e:
+            # Handle HTTP errors and send the corresponding response code
+            self.send_response(e.code)
+            self.end_headers()
+
+        except urllib.error.URLError as e:
+            # Handle URL errors
+            self.send_response(500)
+            self.end_headers()
+            self.wfile.write(b'Error accessing URL')
+
+# Configure the proxy server with the specified host and port
+proxy_server = socketserver.ThreadingTCPServer((ip_address, proxy_port), ProxyHandler)
+
+# Start the proxy server
+print(f"Proxy server running on {ip_address}:{proxy_port}")
+proxy_server.serve_forever()
